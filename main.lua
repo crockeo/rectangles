@@ -1,5 +1,4 @@
-local angle = 0
-
+-- Converts an HSV value (0-360, 0.0-1.0, 0.0-1.0) to an RGB value (0.0-1.0, 0.0-1.0, 0.0-1.0).
 function hsv_to_rgb(h, s, v)
   local c = v * s
   local x = c * (1 - math.abs(((h / 60.0) % 2) - 1))
@@ -18,21 +17,44 @@ function hsv_to_rgb(h, s, v)
   return (r + m), (g + m), (b + m)
 end
 
-function love.draw()
-  width, height = love.graphics.getDimensions()
-  center_x = width / 2
-  center_y = height / 2
+local width, height
+local center_x, center_y
 
-  love.graphics.translate(center_x, center_y)
+local rectangle_count
+local rectangles
+local angle_diff
+
+-- Initializing game state.
+function love.load()
+  width, height = love.graphics.getDimensions()
+  love.window.setMode(width, height, {msaa = 4})
+
+  center_x, center_y = width / 2, height / 2
+
+  rectangle_count = 15
+  rectangles = {}
+  for i = 0, rectangle_count do
+    rectangles[i] = 0
+  end
+
+  angle_diff = math.pi / 4
+end
+
+-- Drawing the rectangles!
+function love.draw()
 
   hue = 0.0
   size = height * 4
-  love.graphics.rotate(angle)
-  for i = 0,15 do
-    r, g, b = hsv_to_rgb(hue, 0.7, 1)
+  for i = 0, rectangle_count do
+    love.graphics.translate(center_x, center_y)
+    love.graphics.rotate(rectangles[i])
+    if i % 2 == 1 then
+      love.graphics.rotate(math.pi / 4)
+    end
 
-    love.graphics.setColor(r, g, b)
-    love.graphics.rectangle(
+      r, g, b = hsv_to_rgb(hue, 0.75, 0.9)
+      love.graphics.setColor(r, g, b)
+      love.graphics.rectangle(
       "fill",
       -size / 2,
       -size / 2,
@@ -43,11 +65,15 @@ function love.draw()
     hue = hue + 45
     hue = hue % 360
     size = size / math.sqrt(2)
-    love.graphics.rotate(math.pi / 4)
+
+    love.graphics.origin()
   end
 end
 
+-- Updating the angle of each rectangle, depending on which one they are.
 function love.update(dt)
-  angle = angle + (math.pi / 4) * dt
-  angle = angle % (math.pi / 2)
+  for i = 0, rectangle_count do
+    rectangles[i] = rectangles[i] + (math.pi / 2) * dt * (i / rectangle_count)
+    rectangles[i] = rectangles[i] % (math.pi / 2)
+  end
 end
