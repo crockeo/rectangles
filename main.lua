@@ -1,3 +1,14 @@
+-- Clamps a value between two ranges.
+function math.clamp(value, lower, upper)
+  if value < lower then
+    return lower
+  elseif value > upper then
+    return upper
+  else
+    return value
+  end
+end
+
 -- Converts an HSV value (0-360, 0.0-1.0, 0.0-1.0) to an RGB value (0.0-1.0, 0.0-1.0, 0.0-1.0).
 function hsv_to_rgb(h, s, v)
   local c = v * s
@@ -24,6 +35,10 @@ local rectangle_count
 local rectangles
 local angle_diff
 
+local hue_diff
+local s
+local v
+
 -- Initializing game state.
 function love.load()
   width, height = love.graphics.getDimensions()
@@ -38,6 +53,10 @@ function love.load()
   end
 
   angle_diff = math.pi / 4
+
+  hue_diff = 45
+  s = 1
+  v = 1
 end
 
 -- Drawing the rectangles!
@@ -52,7 +71,7 @@ function love.draw()
       love.graphics.rotate(math.pi / 4)
     end
 
-      r, g, b = hsv_to_rgb(hue, 0.75, 0.9)
+      r, g, b = hsv_to_rgb(hue, s, v)
       love.graphics.setColor(r, g, b)
       love.graphics.rectangle(
       "fill",
@@ -62,7 +81,7 @@ function love.draw()
       size
     )
 
-    hue = hue + 45
+    hue = hue + hue_diff
     hue = hue % 360
     size = size / math.sqrt(2)
 
@@ -70,10 +89,32 @@ function love.draw()
   end
 end
 
+-- Reusable template for changing the value of some thing based on user input.
+function change(value, delta, minus, plus, min, max, dt)
+  local dvalue = 0
+  if love.keyboard.isDown(minus) then
+    dvalue = dvalue - delta
+  end
+
+  if love.keyboard.isDown(plus) then
+    dvalue = dvalue + delta
+  end
+
+  return math.clamp(value + dvalue * dt, min, max)
+end
+
 -- Updating the angle of each rectangle, depending on which one they are.
 function love.update(dt)
   for i = 0, rectangle_count do
     rectangles[i] = rectangles[i] + (math.pi / 2) * dt * (i / rectangle_count)
     rectangles[i] = rectangles[i] % (math.pi / 2)
+  end
+
+  hue_diff = change(hue_diff, 5, "q", "w", 0, 360, dt)
+  s = change(s, 0.5, "a", "s", 0, 1, dt)
+  v = change(v, 0.5, "z", "x", 0, 1, dt)
+
+  if love.keyboard.isDown("e") then
+    print(hue_diff, h, v)
   end
 end
