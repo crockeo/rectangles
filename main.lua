@@ -54,7 +54,7 @@ function love.load()
 
   angle_diff = math.pi / 4
 
-  hue_diff = 45
+  hue_diff = 0
   s = 1
   v = 1
 end
@@ -110,7 +110,10 @@ function love.update(dt)
     rectangles[i] = rectangles[i] % (math.pi / 2)
   end
 
-  hue_diff = change(hue_diff, 5, "q", "w", 0, 360, dt)
+  hue_diff = hue_diff + 12 * dt
+  hue_diff = hue_diff % 360
+
+  hue_diff = change(hue_diff, 50, "q", "w", 0, 360, dt)
   s = change(s, 0.5, "a", "s", 0, 1, dt)
   v = change(v, 0.5, "z", "x", 0, 1, dt)
 
