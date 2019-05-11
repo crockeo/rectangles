@@ -55,8 +55,8 @@ function love.load()
   angle_diff = math.pi / 4
 
   hue_diff = 0
-  s = 1
-  v = 1
+  s = 0.65
+  v = 0.85
 end
 
 -- Drawing the rectangles!
@@ -118,6 +118,6 @@ function love.update(dt)
   v = change(v, 0.5, "z", "x", 0, 1, dt)
 
   if love.keyboard.isDown("e") then
-    print(hue_diff, h, v)
+    print(hue_diff, s, v)
   end
 end
